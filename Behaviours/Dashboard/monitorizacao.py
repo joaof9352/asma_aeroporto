@@ -17,3 +17,4 @@ class MonitorizacaoBehaviour(PeriodicBehaviour):
 
         if msg.get_metadata('performative') == 'replyData':
             data = TemplateMonitorizacao(self.agent.get('Torre de Controlo'), msg.body)
+
