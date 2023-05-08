@@ -1,5 +1,7 @@
 from spade import agent
 
+from Behaviours.GestorGares.listenGestGares import ListenGestGaresBehaviour
+
 class GestorDeGaresAgent(agent.Agent):
     
 
@@ -8,4 +10,5 @@ class GestorDeGaresAgent(agent.Agent):
 
     async def setup(self):
         print("Agent {}".format(str(self.jid)) + " starting...")
-    
+        b = ListenGestGaresBehaviour()
+        self.add_behaviour(b)
