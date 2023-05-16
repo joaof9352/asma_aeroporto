@@ -17,7 +17,7 @@ class EspConfirmacaoBehaviour(CyclicBehaviour):
         msg = await self.receive(timeout=self.agent.get('limite_timeout'))  # wait for a message for 10 seconds
 
         if not msg:
-            msg = Message(to=self.agent.get('Torre de Controlo'))  # Instantiate the message
+            msg = Message(to=self.agent.get('Torre de Controlo'))  # Instanciar a mensagem para a torre de controlo
             msg.set_metadata("performative", "cancelLanding")
             await self.send(msg)
             self.kill(exit_code=10)
@@ -29,7 +29,7 @@ class EspConfirmacaoBehaviour(CyclicBehaviour):
             # talvez definir um tempo limite até ele levantar voo outra vez
             time.sleep(self.agent.get('tempo_descolagem'))
             print(f"O Avião {self.jid} aterrou...")
-            await self.__send_msg(self.jid, "aterragem_concluida")
+            await self.__send_msg(self.agent.get('Torre De Controlo'), "aterragem_concluida")
         elif msg.get_metadata('performative') == 'confirm_aterrar':
             # se for possível o avião aterrar
             # decrementar o nº de gares disponíveis na torre de controle

@@ -37,3 +37,5 @@ class TemplateAviao():
     def setDestino(self, destino):
         self.destino = destino
 
+    def __str__(self):
+        return f"Aviao: {self.aviao_jid}, Companhia: {self.companhia}, Tipo: {self.tipo}, Origem: {self.origem}, Destino: {self.destino}"

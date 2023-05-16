@@ -6,6 +6,8 @@ import jsonpickle
 
 from Templates.templateAviao import TemplateAviao
 
+from Templates.Aviao import Aviao
+
 class VontadeAterrarBehaviour(OneShotBehaviour):
     
     async def run(self):
@@ -13,8 +15,9 @@ class VontadeAterrarBehaviour(OneShotBehaviour):
 
         msg = Message(to=self.agent.get('Torre de Controlo'))  # Instantiate the message
         msg.set_metadata("performative", "requestLanding")
-        template = TemplateAviao(self.jid, self.agent.get('Companhia'), self.agent.get('Tipo'), self.agent.get('Origem'), self.agent.get('Destino'))
-        msg.body = jsonpickle.encode(template)
+        aviao : Aviao
+        aviao = self.agent.get('Aviao')
+        msg.body = jsonpickle.encode(aviao)
         await self.send(msg)
 
 

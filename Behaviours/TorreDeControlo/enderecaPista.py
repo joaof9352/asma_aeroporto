@@ -4,6 +4,8 @@ from spade.template import Template
 import random
 import jsonpickle
 
+from Templates.Aviao import Aviao
+
 class EnderecaPistaBehaviour(PeriodicBehaviour): # 3 em 3 segundos
 
     async def run(self):
@@ -15,15 +17,19 @@ class EnderecaPistaBehaviour(PeriodicBehaviour): # 3 em 3 segundos
                 msg.set_metadata("performative", "requestNumGares") 
                 await self.send(msg)
                 numGares = msg.body
+
+                aviao : Aviao
+                
                 if numGares > 0:
                     # Enviar confirmação para o avião
-                    aviao = espera.pop(0)
+                    aviao,tipo = espera.pop(0)
+
                 else:
                     avioes_descolar = list(filter(espera, lambda x: x[1] == "descolar"))
                     if len(avioes_descolar) > 0:
-                        aviao = espera.pop(espera.index(avioes_descolar[0]))
+                        aviao,tipo = espera.pop(espera.index(avioes_descolar[0]))
                 
-                self.__confirm_operation(aviao[0],aviao[1])
+                self.__confirm_operation(aviao.get_jid(),tipo)
 
 
     async def __confirm_operation(self, aviao_jid, type):

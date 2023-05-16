@@ -1,6 +1,10 @@
 from spade.behaviour import CyclicBehaviour
 from spade.message import Message
 from spade.template import Template
+
+from Templates.infoDashboard import InfoDashboard
+from Templates.Aviao import Aviao
+
 import random
 import jsonpickle
 
@@ -13,7 +17,7 @@ class ListenTorreControloBehaviour(CyclicBehaviour):
         msgParaGestGares = Message(to=self.agent.get('Gestor de Gares'))  # Instantiate the message
         msgParaGestGares.set_metadata("performative", "requestNumGares")
         await self.send(msgParaGestGares)
-        msgDeGestGares = await self.receive(timeout=10)  # wait for a message for 10 seconds
+        msgDeGestGares = await self.receive(timeout=10)  # esperar a informação do gestor de gares durante 10 segundos
         gares_disp = msgDeGestGares.body
         
         if gares_disp == 0 or self.agent.get('pistas_disp') == 0:
@@ -27,7 +31,7 @@ class ListenTorreControloBehaviour(CyclicBehaviour):
         espera = self.agent.get('lista_espera')
         num_avioes_espera = len(list(filter(espera, lambda x: x[1] == "aterrar")))
         if num_avioes_espera < self.agent.get('limite_espera'): # Colocar em lista de espera
-            self.agent.set('lista_espera', espera + [(msg.sender, "aterrar")])
+            self.agent.set('lista_espera', espera + [(jsonpickle.decode(msg.body), "aterrar")])
             msgParaAviao = Message(to=msg.sender)
             msgParaAviao.set_metadata("performative", "wait")
             await self.send(msgParaAviao)
@@ -41,22 +45,35 @@ class ListenTorreControloBehaviour(CyclicBehaviour):
         pistas_disp = self.agent.get('pistas_disp')
         if pistas_disp > 0:
             espera = self.agent.get('lista_espera')
-            self.agent.set('lista_espera', espera + [(msg.sender, "descolar")])
+            self.agent.set('lista_espera', espera + [(jsonpickle.decode(msg.body), "descolar")])
         else:
             msgParaAviao = Message(to=msg.sender)
             msgParaAviao.set_metadata("performative", "wait")
             await self.send(msgParaAviao)
-            
+
     async def __request_data(self, msg):
-        pass
-    
+        lista_espera = self.agent.get('lista_espera')
+        num_pistas_disp = self.agent.get('pistas_disp')
+
+        msgParaGestGares = Message(to=msg.sender)  # Instantiate the message
+        msgParaGestGares.set_metadata("performative", "requestNumGares")
+        await self.send(msgParaGestGares)
+        msgDeGestGares = await self.receive(timeout=10)  # esperar a informação do gestor de gares durante 10 segundos
+        num_gares_disp = msgDeGestGares.body
+
+        infoParaDashboard = InfoDashboard(num_pistas_disp, num_gares_disp, lista_espera)
+
+        msg = Message(to=self.agent.get('Gestor De Gares'))
+        msg.set_metadata('performative', '')
+
     async def __update_gares(self, msg):
         pass
-                
+
     async def __cancelLanding(self, msg):
         #Retirar da lista de espera
         aviao_jid = msg.sender
         espera = self.agent.get('lista_espera')
+        x = list(filter(espera, lambda x: x[0].get_jid() != aviao_jid)) #Retirar o avião da lista de espera
         espera.remove((aviao_jid,"aterrar"))
         self.agent.set('lista_espera', espera)
 
@@ -79,7 +96,6 @@ class ListenTorreControloBehaviour(CyclicBehaviour):
             self.__cancelLanding(msg)
         elif msg.get_metadata('performative') == 'aterragem_concluida':
             self.__done_Landing()
-        
 
 
         

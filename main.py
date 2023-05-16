@@ -20,6 +20,19 @@ def main():
     gestor_de_gares = GestorDeGaresAgent("gestor_de_gares@localhost", "1234")
     dashboard = DashboardAgent("dashboard@localhost", "1234")
 
+    # Fazer set dos agentes para que possam comunicar entre si
+
+    torre_controlo.set('Gestor De Gares', gestor_de_gares.jid)
+    torre_controlo.set('Dashboard', dashboard.jid)
+
+    gestor_de_gares.set('Torre De Controlo', torre_controlo.jid)
+    gestor_de_gares.set('Dashboard', dashboard.jid)
+
+    dashboard.set('Torre De Controlo', torre_controlo.jid)
+    dashboard.set('Gestor De Gares', gestor_de_gares.jid)
+
+    # Inicializar os agentes principais (torre de controlo, gestor de gares e dashboard)
+
     torre_controlo.start()
     gestor_de_gares.start()
     dashboard.start()
@@ -27,6 +40,7 @@ def main():
     while i < MAX_AVIOES:
         random_time = random.randint(1, 10)
         aviaoAgent = AviaoAgent(f"plane{i}@localhost", "1234")
+        aviaoAgent.set('Torre De Controlo', torre_controlo.jid) # Fazer com que o avião conheça a torre de controlo, para que possa comunicar com ela
         time.sleep(random_time)
         aviaoAgent.start()
         i += 1
