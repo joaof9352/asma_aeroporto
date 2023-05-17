@@ -8,17 +8,17 @@ class Aviao():
 
     companhias = ["Emirates", "TAP", "Ryanair", "EasyJet", "Malta Airlines", "Turkish Airlines"]
     tipo = ["Comercial", "Mercadorias"]
-    locais = ["Lisboa", "Porto", "Madrid", "Barcelona", "Paris", "Londres", "Berlim", "Istambul", "Atenas", "Amsterdão", "Viena", "Dublin", "Budapeste"]
+    locais = ["Lisboa", "Madrid", "Barcelona", "Paris", "Londres", "Berlim", "Istambul", "Atenas", "Amsterdão", "Viena", "Dublin", "Budapeste"]
 
     def __init__(self, jid):
-        jid = jid
-        companhia = random.choice(self.companhia)
-        tipo = random.choice(self.tipo)
-        origem = random.choice(self.locais)
-        destino = random.choice([x for x in self.locais if x != origem])
-        limite_timeout = random.randint(30, 60)
-        tempo_aterragem = 20
-        tempo_descolagem = 20
+        self.jid = jid
+        self.companhia = random.choice(self.companhias)
+        self.tipo = random.choice(self.tipo)
+        self.origem = random.choice(self.locais)
+        self.destino = "Porto"
+        self.limite_timeout = random.randint(30, 60)
+        self.tempo_aterragem = 20
+        self.tempo_descolagem = 20
 
     def get_jid(self):
         return self.jid
@@ -67,5 +67,9 @@ class Aviao():
 
     def set_tempo_descolagem(self, tempo_descolagem):
         self.tempo_descolagem = tempo_descolagem
+
+
+    def __str__(self):
+        return f"Aviao: {self.jid}, Companhia: {self.companhia}, Tipo: {self.tipo}, Origem: {self.origem}, Destino: {self.destino}, Limite Timeout: {self.limite_timeout}, Tempo Aterragem: {self.tempo_aterragem}, Tempo Descolagem: {self.tempo_descolagem}\n"
 
     

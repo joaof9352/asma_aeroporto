@@ -14,9 +14,9 @@ class TorreDeControloAgent(agent.Agent):
 
     async def setup(self):
         print("Agent {}".format(str(self.jid)) + " starting...")
-        b1 = EnderecaPistaBehaviour()
+        b1 = EnderecaPistaBehaviour(period=3)
         b2 = ListenTorreControloBehaviour()
-        b3 = EnviaInfoDashboardBehaviour(period=3)
+        b3 = EnviaInfoDashboardBehaviour(period=10)
         self.add_behaviour(b1)
         self.add_behaviour(b2)
         self.add_behaviour(b3)

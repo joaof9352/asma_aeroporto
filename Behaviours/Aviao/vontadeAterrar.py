@@ -11,9 +11,9 @@ from Templates.Aviao import Aviao
 class VontadeAterrarBehaviour(OneShotBehaviour):
     
     async def run(self):
-        print(f"Avião {self.jid} quer aterrar...")
+        print(f"Avião {self.agent.jid} quer aterrar...")
 
-        msg = Message(to=self.agent.get('Torre de Controlo'))  # Instantiate the message
+        msg = Message(to=self.agent.get('Torre De Controlo'))  # Instantiate the message
         msg.set_metadata("performative", "requestLanding")
         aviao : Aviao
         aviao = self.agent.get('Aviao')

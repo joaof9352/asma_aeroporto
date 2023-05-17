@@ -6,7 +6,7 @@ class GestorDeGaresAgent(agent.Agent):
     
 
     gares_disp = 10
-
+    avioes_espera = []
 
     async def setup(self):
         print("Agent {}".format(str(self.jid)) + " starting...")

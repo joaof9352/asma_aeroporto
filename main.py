@@ -1,5 +1,9 @@
 from spade import agent, quit_spade
-from Agents import AviaoAgent, TorreControloAgent, DashboardAgent, GestorDeGaresAgent
+
+from Agents.AviaoAgent import AviaoAgent
+from Agents.GestorDeGaresAgent import GestorDeGaresAgent
+from Agents.TorreDeControloAgent import TorreDeControloAgent
+from Agents.DashboardAgent import DashboardAgent
 import random
 import time
 
@@ -16,39 +20,59 @@ def main():
     # Initialize list to save all active Agents in list
     lista_agentes_avioes = []
 
-    torre_controlo = TorreControloAgent("torre@localhost", "1234")
-    gestor_de_gares = GestorDeGaresAgent("gestor_de_gares@localhost", "1234")
-    dashboard = DashboardAgent("dashboard@localhost", "1234")
+    torre_controlo_jid = "torre@" + XMPP_SERVER
+    gestor_de_gares_jid = "gestor_de_gares@" + XMPP_SERVER
+    dashboard_jid = "dashboard@" + XMPP_SERVER
+
+    torre_controlo = TorreDeControloAgent(torre_controlo_jid, PASSWORD)
+    gestor_de_gares = GestorDeGaresAgent(gestor_de_gares_jid, PASSWORD)
+    dashboard = DashboardAgent(dashboard_jid, PASSWORD)
 
     # Fazer set dos agentes para que possam comunicar entre si
 
-    torre_controlo.set('Gestor De Gares', gestor_de_gares.jid)
-    torre_controlo.set('Dashboard', dashboard.jid)
+    torre_controlo.set('Gestor De Gares', gestor_de_gares_jid)
+    torre_controlo.set('Dashboard', dashboard_jid)
 
-    gestor_de_gares.set('Torre De Controlo', torre_controlo.jid)
-    gestor_de_gares.set('Dashboard', dashboard.jid)
+    gestor_de_gares.set('Torre De Controlo', torre_controlo_jid)
+    gestor_de_gares.set('Dashboard', dashboard_jid)
 
-    dashboard.set('Torre De Controlo', torre_controlo.jid)
-    dashboard.set('Gestor De Gares', gestor_de_gares.jid)
+    dashboard.set('Torre De Controlo', torre_controlo_jid)
+    dashboard.set('Gestor De Gares', gestor_de_gares_jid)
 
     # Inicializar os agentes principais (torre de controlo, gestor de gares e dashboard)
 
-    torre_controlo.start()
-    gestor_de_gares.start()
-    dashboard.start()
+    
+    res_gest = gestor_de_gares.start(auto_register=True)
+    res_gest.result()
+    time.sleep(1)
+    res_dashboard = dashboard.start(auto_register=True)
+    res_dashboard.result()
+    time.sleep(1)
+    res_torre = torre_controlo.start(auto_register=True)
+    res_torre.result()
+    time.sleep(1)
 
-    while i < MAX_AVIOES:
-        random_time = random.randint(1, 10)
-        aviaoAgent = AviaoAgent(f"plane{i}@localhost", "1234")
-        aviaoAgent.set('Torre De Controlo', torre_controlo.jid) # Fazer com que o avião conheça a torre de controlo, para que possa comunicar com ela
-        time.sleep(random_time)
-        aviaoAgent.start()
-        i += 1
-        lista_agentes_avioes.append(aviaoAgent)
+    random_time = random.randint(1, 10)
+    aviaoAgent = AviaoAgent(f"plane{1}@" + XMPP_SERVER, PASSWORD)
+    aviaoAgent.set('Torre De Controlo', torre_controlo_jid) # Fazer com que o avião conheça a torre de controlo, para que possa comunicar com ela
+    aviaoAgent.set('Gestor De Gares', gestor_de_gares_jid) # Fazer com que o avião conheça o gestor de gares, para que possa comunicar com ele
+    #time.sleep(5)
+    res_agent = aviaoAgent.start(auto_register=True)
+    res_agent.result()
+
+    #while i < MAX_AVIOES:
+    #    random_time = random.randint(1, 10)
+    #    aviaoAgent = AviaoAgent(f"plane{i}@localhost", "1234")
+    #    aviaoAgent.set('Torre De Controlo', torre_controlo.jid) # Fazer com que o avião conheça a torre de controlo, para que possa comunicar com ela
+    #    time.sleep(random_time)
+    #    aviaoAgent.start()
+    #    i += 1
+    #    lista_agentes_avioes.append(aviaoAgent)
 
 
     # Handle interruption of all agents
     while torre_controlo.is_alive():
+        #print("Agents running...")
         try:
             time.sleep(1)
         except KeyboardInterrupt:
@@ -68,5 +92,5 @@ def main():
 
 
 
-if '__name__' == '__main__':
+if __name__ == '__main__':
     main()
