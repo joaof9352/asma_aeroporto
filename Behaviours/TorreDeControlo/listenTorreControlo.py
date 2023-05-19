@@ -72,18 +72,24 @@ class ListenTorreControloBehaviour(CyclicBehaviour):
         x = list(filter(lambda x: x[0].get_jid().split("@")[0] != aviao_jid, espera)) #Retirar o avião da lista de espera
         self.agent.lista_espera = x
 
-    async def __done_Landing(self):
+    async def __done_Landing(self, msg):
         print(f"A incrementar pistas disponíveis de {self.agent.pistas_disp} para {self.agent.pistas_disp + 1}")
         self.agent.pistas_disp = self.agent.pistas_disp + 1
+        aviao : Aviao
+        aviao = jsonpickle.decode(msg.body)
+        self.agent.lista_aterrar.remove(aviao.get_jid().split("@")[0])
 
-    async def __done_TakeOff(self):
+    async def __done_TakeOff(self, msg):
         print(f"A incrementar pistas disponíveis de {self.agent.pistas_disp} para {self.agent.pistas_disp + 1}")
         self.agent.pistas_disp = self.agent.pistas_disp + 1
+        aviao : Aviao
+        aviao = jsonpickle.decode(msg.body)
+        self.agent.lista_descolar.remove(aviao.get_jid().split("@")[0])
 
     async def run(self):
         #print("Listen Torre de Controlo Behaviour iniciado...")
 
-        msg = await self.receive(timeout=10)  # wait for a message
+        msg = await self.receive(timeout=60)  # wait for a message
 
         #print("teste after await receive listen torre de controlo")
 
@@ -99,9 +105,9 @@ class ListenTorreControloBehaviour(CyclicBehaviour):
         elif msg.get_metadata('performative') == 'cancelLanding':
             await self.__cancelLanding(msg)
         elif msg.get_metadata('performative') == 'planeLanded':
-            await self.__done_Landing()
+            await self.__done_Landing(msg)
         elif msg.get_metadata('performative') == 'planeTookOff':
-            await self.__done_TakeOff()
+            await self.__done_TakeOff(msg)
 
 
         

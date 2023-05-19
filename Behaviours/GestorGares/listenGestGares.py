@@ -28,10 +28,12 @@ class ListenGestGaresBehaviour(CyclicBehaviour):
         elif msg.get_metadata('performative') == 'incrementGares':
             print("[GEST GARES] Incrementing gares...")
             self.agent.gares_disp = self.agent.gares_disp + 1
+            print("[GEST GARES] Gares disponíveis: ", self.agent.gares_disp)
 
         elif msg.get_metadata('performative') == 'decrementGares':
             print("[GEST GARES] Decrementing gares...")
             self.agent.gares_disp = self.agent.gares_disp - 1
+            print("[GEST GARES] Gares disponíveis: ", self.agent.gares_disp)
 
             
 

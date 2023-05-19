@@ -43,13 +43,13 @@ def main():
 
     res_gest = gestor_de_gares.start(auto_register=True)
     res_gest.result()
-    time.sleep(1)
+    time.sleep(4)
     res_dashboard = dashboard.start(auto_register=True)
     res_dashboard.result()
-    time.sleep(1)
+    time.sleep(4)
     res_torre = torre_controlo.start(auto_register=True)
     res_torre.result()
-    time.sleep(1)
+    time.sleep(4)
 
     while i < MAX_AVIOES:
         random_time = random.randint(1, 10)
@@ -57,7 +57,6 @@ def main():
         aviaoAgent.set('Torre De Controlo', torre_controlo_jid) # Fazer com que o avião conheça a torre de controlo, para que possa comunicar com ela
         res_aviao = aviaoAgent.start(auto_register=True)
         res_aviao.result()
-        #dashboard.set('Gestor De Gares', gestor_de_gares_jid)
         time.sleep(random_time)
         i += 1
         lista_agentes_avioes.append(aviaoAgent)
