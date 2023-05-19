@@ -10,7 +10,7 @@ import time
 XMPP_SERVER = 'legion'
 PASSWORD = 'openfireASMA'
 
-MAX_AVIOES = 20  # limit number of taxis
+MAX_AVIOES = 5  # limit number of taxis
 
 
 
@@ -41,7 +41,6 @@ def main():
 
     # Inicializar os agentes principais (torre de controlo, gestor de gares e dashboard)
 
-    
     res_gest = gestor_de_gares.start(auto_register=True)
     res_gest.result()
     time.sleep(1)
@@ -52,22 +51,16 @@ def main():
     res_torre.result()
     time.sleep(1)
 
-    random_time = random.randint(1, 10)
-    aviaoAgent = AviaoAgent(f"plane{1}@" + XMPP_SERVER, PASSWORD)
-    aviaoAgent.set('Torre De Controlo', torre_controlo_jid) # Fazer com que o avião conheça a torre de controlo, para que possa comunicar com ela
-    aviaoAgent.set('Gestor De Gares', gestor_de_gares_jid) # Fazer com que o avião conheça o gestor de gares, para que possa comunicar com ele
-    #time.sleep(5)
-    res_agent = aviaoAgent.start(auto_register=True)
-    res_agent.result()
-
-    #while i < MAX_AVIOES:
-    #    random_time = random.randint(1, 10)
-    #    aviaoAgent = AviaoAgent(f"plane{i}@localhost", "1234")
-    #    aviaoAgent.set('Torre De Controlo', torre_controlo.jid) # Fazer com que o avião conheça a torre de controlo, para que possa comunicar com ela
-    #    time.sleep(random_time)
-    #    aviaoAgent.start()
-    #    i += 1
-    #    lista_agentes_avioes.append(aviaoAgent)
+    while i < MAX_AVIOES:
+        random_time = random.randint(1, 10)
+        aviaoAgent = AviaoAgent(f"plane{i}@"+XMPP_SERVER, PASSWORD)
+        aviaoAgent.set('Torre De Controlo', torre_controlo_jid) # Fazer com que o avião conheça a torre de controlo, para que possa comunicar com ela
+        res_aviao = aviaoAgent.start(auto_register=True)
+        res_aviao.result()
+        #dashboard.set('Gestor De Gares', gestor_de_gares_jid)
+        time.sleep(random_time)
+        i += 1
+        lista_agentes_avioes.append(aviaoAgent)
 
 
     # Handle interruption of all agents

@@ -4,6 +4,7 @@ from spade.template import Template
 import random
 import jsonpickle
 import time
+import asyncio
 
 from Behaviours.Aviao.vontadeDescolar import VontadeDescolarBehaviour
 from Templates.Aviao import Aviao
@@ -38,7 +39,7 @@ class EspConfirmacaoBehaviour(CyclicBehaviour):
             # fazer um sleep que represente o tempo de aterragem
             # talvez definir um tempo limite até ele levantar voo outra vez
             print(f"O Avião {aviao.get_jid()} recebeu confirmação para descolar...")
-            time.sleep(self.agent.get('Aviao').get_tempo_descolagem())
+            await asyncio.sleep(self.agent.get('Aviao').get_tempo_descolagem())
             print(f"O Avião {aviao.get_jid()} descolou...")
             await self.__send_msg(self.agent.get('Torre De Controlo'), "planeTookOff", jsonpickle.encode(self.agent.get('Aviao')))
         elif msg.get_metadata('performative') == 'confirm_aterrar':
@@ -48,14 +49,14 @@ class EspConfirmacaoBehaviour(CyclicBehaviour):
             # talvez definir um tempo limite até ele levantar voo outra vez
             print(f"O Avião {aviao.get_jid()} recebeu confirmação para aterrar...")
             
-            time.sleep(aviao.get_tempo_aterragem())
+            await asyncio.sleep(aviao.get_tempo_aterragem())
             print(f"O Avião {aviao.get_jid()} aterrou...")
             
             await self.__send_msg(self.agent.get('Torre De Controlo'), "planeLanded", jsonpickle.encode(self.agent.get('Aviao')))
 
             # Adiciona e inicia o behaviour de descolagem
             
-            time.sleep(10) # depois poderá ser um tempo aleatório
+            await asyncio.sleep(10) # depois poderá ser um tempo aleatório
 
             b = VontadeDescolarBehaviour()
             self.agent.add_behaviour(b)

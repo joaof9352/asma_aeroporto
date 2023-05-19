@@ -9,8 +9,8 @@ from Templates.Aviao import Aviao
 class ListenGestGaresBehaviour(CyclicBehaviour):
 
     async def run(self):
-
-        msg = await self.receive(timeout=10)  # wait for a message
+        print("Listen Gest Gares Behaviour iniciado...")
+        msg = await self.receive(timeout=60)  # wait for a message
 
         #print("Message in Gest Gares ", msg.body)
 
@@ -32,6 +32,7 @@ class ListenGestGaresBehaviour(CyclicBehaviour):
         elif msg.get_metadata('performative') == 'decrementGares':
             print("[GEST GARES] Decrementing gares...")
             self.agent.gares_disp = self.agent.gares_disp - 1
+
             
 
 

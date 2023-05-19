@@ -1,5 +1,4 @@
 from spade import agent
-import queue
 
 from Behaviours.TorreDeControlo.enderecaPista import EnderecaPistaBehaviour
 from Behaviours.TorreDeControlo.listenTorreControlo import ListenTorreControloBehaviour
@@ -16,7 +15,7 @@ class TorreDeControloAgent(agent.Agent):
         print("Agent {}".format(str(self.jid)) + " starting...")
         b1 = EnderecaPistaBehaviour(period=3)
         b2 = ListenTorreControloBehaviour()
-        b3 = EnviaInfoDashboardBehaviour(period=10)
+        b3 = EnviaInfoDashboardBehaviour(period=5)
         self.add_behaviour(b1)
         self.add_behaviour(b2)
         self.add_behaviour(b3)

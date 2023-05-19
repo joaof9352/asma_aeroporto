@@ -30,7 +30,7 @@ class ListenTorreControloBehaviour(CyclicBehaviour):
             
             if gares_disp == 0 or self.agent.pistas_disp == 0:
                 print("Não há gares ou pistas disponíveis")
-                self.__deny_landing(msg)
+                await self.__deny_landing(msg)
             else:
                 print("Há gares e pistas disponíveis")
                 espera = self.agent.lista_espera
@@ -39,7 +39,7 @@ class ListenTorreControloBehaviour(CyclicBehaviour):
     async def __deny_landing(self, msg):
         # Se o avião não puder aterrar, por falta de gares ou de pistas, colocar ou não em fila de espera, caso o limite de aviões em espera seja atingido
         espera = self.agent.lista_espera
-        num_avioes_espera = len(list(filter(espera, lambda x: x[1] == "aterrar")))
+        num_avioes_espera = len(list(filter(lambda x: x[1] == "aterrar", espera)))
         aviao : Aviao
         aviao = jsonpickle.decode(msg.body)
         if num_avioes_espera < self.agent.limite_espera: # Colocar em lista de espera
@@ -56,14 +56,11 @@ class ListenTorreControloBehaviour(CyclicBehaviour):
         # Verificar se há pistas. Se não houver, verificar se há gares. Se não houver, avião ganha prioridade, senão entra para a fila de espera
         
         pistas_disp = self.agent.pistas_disp
-        if pistas_disp > 0:
-            espera = self.agent.lista_espera
-            self.agent.lista_espera = espera + [(jsonpickle.decode(msg.body), "descolar")]
-        else:
-            pass
-            #msgParaAviao = Message(to=jsonpickle.decode(msg.body).get_jid())
-            #msgParaAviao.set_metadata("performative", "wait")
-            #await self.send(msgParaAviao)
+        espera = self.agent.lista_espera
+        self.agent.lista_espera = espera + [(jsonpickle.decode(msg.body), "descolar")]
+        #msgParaAviao = Message(to=jsonpickle.decode(msg.body).get_jid())
+        #msgParaAviao.set_metadata("performative", "wait")
+        #await self.send(msgParaAviao)
 
     async def __update_gares(self, msg):
         pass
@@ -90,8 +87,8 @@ class ListenTorreControloBehaviour(CyclicBehaviour):
 
         #print("teste after await receive listen torre de controlo")
 
-        # if not msg:
-        #     pass
+        if not msg:
+            pass
 
         if msg.get_metadata('performative') == 'requestLanding':
             await self.__request_landing(msg)
