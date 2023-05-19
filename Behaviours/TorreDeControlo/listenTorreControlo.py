@@ -64,7 +64,7 @@ class ListenTorreControloBehaviour(CyclicBehaviour):
 
     async def __update_gares(self, msg):
         pass
-
+ 
     async def __cancelLanding(self, msg):
         #Retirar da lista de espera
         aviao_jid = msg.sender

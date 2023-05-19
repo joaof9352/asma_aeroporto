@@ -5,12 +5,11 @@ import random
 """
 
 class Aviao():
-
     companhias = ["Emirates", "TAP", "Ryanair", "EasyJet", "Malta Airlines", "Turkish Airlines"]
     tipo = ["Comercial", "Mercadorias"]
     locais = ["Lisboa", "Madrid", "Barcelona", "Paris", "Londres", "Berlim", "Istambul", "Atenas", "Amsterdão", "Viena", "Dublin", "Budapeste"]
 
-    def __init__(self, jid):
+    def __init__(self, jid, x, y):
         self.jid = jid
         self.companhia = random.choice(self.companhias)
         self.tipo = random.choice(self.tipo)
@@ -19,6 +18,8 @@ class Aviao():
         self.limite_timeout = random.randint(30, 60)
         self.tempo_aterragem = 20
         self.tempo_descolagem = 20
+        self.x = x
+        self.y = y
 
     def get_jid(self):
         return self.jid

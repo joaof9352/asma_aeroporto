@@ -35,6 +35,25 @@ class ListenGestGaresBehaviour(CyclicBehaviour):
             self.agent.gares_disp = self.agent.gares_disp - 1
             print("[GEST GARES] Gares disponíveis: ", self.agent.gares_disp)
 
+        elif msg.get_metadata('performative') == 'requestGaresList':
+            gestor_de_gares = self.agent.get('GestorDeGares')
+            gares = gestor_de_gares.gares
+
+            msgParaTorreControlo = Message(to=self.agent.get('Torre De Controlo'))  # Instantiate the message
+            msgParaTorreControlo.set_metadata("performative", "replyGaresList")
+            msgParaTorreControlo.body = jsonpickle.encode(gares)
+
+            await self.send(msgParaTorreControlo)
+        elif msg.get_metadata('performative') == 'reserveGare':
+            gare = jsonpickle.decode(msg.body)
+            gestor_de_gares = self.agent.get('GestorDeGares')
+            gestor_de_gares.reserve(gare)
+
+            print(f"[GG] A reservare Gare ({gare.x}, {gare.y})")
+
+
+            
+
             
 
 
