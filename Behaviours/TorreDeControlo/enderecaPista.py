@@ -13,21 +13,22 @@ class EnderecaPistaBehaviour(PeriodicBehaviour): # 3 em 3 segundos
 
     async def run(self):
         #print("Endereça Pista Behaviour iniciado...")
+        torreDeControlo = self.agent.get('TorreDeControlo')
         print("A verificar se existem aviões em lista de espera...")
-        print(f"Estado: {self.agent.pistas_disp}")
-        espera = self.agent.lista_espera
+        print(f"Estado: {torreDeControlo.pistas_disp}")
+        espera = torreDeControlo.lista_espera
         if len(espera) > 0:
-            if self.agent.pistas_disp > 0:
+            if torreDeControlo.pistas_disp > 0:
                 print("Existem aviões em lista de espera e pistas disponíveis")
                 #Comunicar com o gestor de gares
-                # msg = Message(to=self.agent.get('Gestor De Gares'))
+                # msg = Message(to=torreDeControlo.get('Gestor De Gares'))
                 # msg.set_metadata("performative", "requestNumGares")
                 # await self.send(msg)
                 # msgGestGares = await self.receive(timeout=10)
 
                 #if msgGestGares.get_metadata('performative') == 'replyNumGares':
-                numGares = self.agent.gares_disp
-                self.agent.gares_disp = numGares
+                numGares = torreDeControlo.gares_disp
+                torreDeControlo.gares_disp = numGares
                 aviao : Aviao
                 
                 if numGares > 0:
@@ -41,7 +42,7 @@ class EnderecaPistaBehaviour(PeriodicBehaviour): # 3 em 3 segundos
                 print(f"A enviar confirmação para o avião {aviao.get_jid()}...")
                 await self.__confirm_operation(aviao,tipo)
 
-    async def __confirm_operation(self, aviao, type):
+    async def __confirm_operation(self, torreDeControlo, aviao, type):
         # se gouver gares disponíveis e pistas disponíveis, decrementar o número de gares disponíveis e pistas disponíveis
         # falta introduzir no corpo da mensagem o número da gare e pista que o avião deve utilizar
         msgParaGestGares = Message(to=self.agent.get('Gestor De Gares'))  # Instantiate the message
@@ -68,15 +69,15 @@ class EnderecaPistaBehaviour(PeriodicBehaviour): # 3 em 3 segundos
             msgGestGares.body = jsonpickle.encode(best_gare)
             await self.send(msgGestGares)
             
-            self.agent.gares_disp = self.agent.gares_disp - 1
-            self.agent.lista_aterrar.append(aviao.get_jid().split('@')[0])
+            torreDeControlo.gares_disp = torreDeControlo.gares_disp - 1
+            torreDeControlo.lista_aterrar.append(aviao.get_jid().split('@')[0])
         else: 
             msgParaGestGares.set_metadata("performative", "incrementGares")
-            self.agent.gares_disp = self.agent.gares_disp + 1
-            self.agent.lista_descolar.append(aviao.get_jid().split('@')[0])
+            torreDeControlo.gares_disp = torreDeControlo.gares_disp + 1
+            torreDeControlo.lista_descolar.append(aviao.get_jid().split('@')[0])
         await self.send(msgParaGestGares)
-        print(f"A decrementar o número de pistas disponíveis de {self.agent.pistas_disp} para {self.agent.pistas_disp - 1}")
-        self.agent.pistas_disp = self.agent.pistas_disp - 1
+        print(f"A decrementar o número de pistas disponíveis de {torreDeControlo.pistas_disp} para {torreDeControlo.pistas_disp - 1}")
+        torreDeControlo.pistas_disp = torreDeControlo.pistas_disp - 1
         msgParaAviao = Message(to=aviao.get_jid())  # Instantiate the message
         msgParaAviao.set_metadata("performative", f'confirm_{type}') #confirm_aterrar confirm_descolar
         await self.send(msgParaAviao)

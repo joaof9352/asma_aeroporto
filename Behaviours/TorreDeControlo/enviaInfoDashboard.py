@@ -19,9 +19,10 @@ class EnviaInfoDashboardBehaviour(PeriodicBehaviour): # 3 em 3 segundos
         # if msgDeGestGares.get_metadata('performative') == 'replyNumGares':
         #     print("[ISTO] Received num_gares", msgDeGestGares.body)
         #     gares_disp = int(msgDeGestGares.body)
-        gares_disp = self.agent.gares_disp
+        torreDeControlo = self.agent.get('TorreDeControlo')
+        gares_disp = torreDeControlo.gares_disp
 
-        info = InfoDashboard(self.agent.pistas_disp, gares_disp, self.agent.lista_espera, self.agent.lista_aterrar, self.agent.lista_descolar)
+        info = InfoDashboard(torreDeControlo.pistas_disp, gares_disp, torreDeControlo.lista_espera, torreDeControlo.lista_aterrar, torreDeControlo.lista_descolar)
 
         msg = Message(to=self.agent.get('Dashboard'))
         msg.set_metadata("performative", "infoData")

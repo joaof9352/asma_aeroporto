@@ -1,6 +1,9 @@
 from Templates.Gare import Gare
 
 class GestorDeGares:
+    gares_disp = 10
+    avioes_espera = []
+
     def __init__(self, x, y, gares):
         self.x = x
         self.y = y

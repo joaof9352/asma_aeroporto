@@ -17,23 +17,25 @@ class ListenGestGaresBehaviour(CyclicBehaviour):
         if not msg:
             pass
 
-        elif msg.get_metadata('performative') == 'requestNumGares':
+        gestorDeGares = self.agent.get('GestorDeGares')
+
+        if msg.get_metadata('performative') == 'requestNumGares':
             msgParaTorreControlo = Message(to=self.agent.get('Torre De Controlo'))  # Instantiate the message
             msgParaTorreControlo.set_metadata("performative", "replyNumGares")
-            msgParaTorreControlo.body = str(self.agent.gares_disp)
+            msgParaTorreControlo.body = str(gestorDeGares.gares_disp)
             #print("Gares disponíveis: ", self.agent.gares_disp)
 
             await self.send(msgParaTorreControlo)
         
         elif msg.get_metadata('performative') == 'incrementGares':
             print("[GEST GARES] Incrementing gares...")
-            self.agent.gares_disp = self.agent.gares_disp + 1
-            print("[GEST GARES] Gares disponíveis: ", self.agent.gares_disp)
+            gestorDeGares.gares_disp = gestorDeGares.gares_disp + 1
+            print("[GEST GARES] Gares disponíveis: ", gestorDeGares.gares_disp)
 
         elif msg.get_metadata('performative') == 'decrementGares':
             print("[GEST GARES] Decrementing gares...")
-            self.agent.gares_disp = self.agent.gares_disp - 1
-            print("[GEST GARES] Gares disponíveis: ", self.agent.gares_disp)
+            gestorDeGares.gares_disp = gestorDeGares.gares_disp - 1
+            print("[GEST GARES] Gares disponíveis: ", gestorDeGares.gares_disp)
 
         elif msg.get_metadata('performative') == 'requestGaresList':
             gestor_de_gares = self.agent.get('GestorDeGares')
