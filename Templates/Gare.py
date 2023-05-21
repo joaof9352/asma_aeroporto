@@ -15,3 +15,6 @@ class Gare:
         
     def dist(self, obj):
         return abs(self.x - obj.x) + abs(self.y - obj.y)
+    
+    def free_gare(self):
+        self.aviao = None

@@ -12,7 +12,7 @@ class AviaoAgent(agent.Agent):
     async def setup(self):
         print("Agent {}".format(str(self.jid)) + " starting...")
 
-        aviao = Aviao(f"{self.jid}")
+        aviao = Aviao(f"{self.jid}", 300, 5)
         self.set('Aviao', aviao)
 
         b1 = EspConfirmacaoBehaviour()

@@ -11,29 +11,19 @@ import jsonpickle
 
 class ListenTorreControloBehaviour(CyclicBehaviour):
 
-    async def request_num_gares(self):
-        msgParaGestGares = Message(to=self.agent.get('Gestor De Gares'))  # Instantiate the message
-        msgParaGestGares.set_metadata("performative", "requestNumGares")
-        await self.send(msgParaGestGares)
-        msgDeGestGares = await self.receive(timeout=10)  # esperar a informação do gestor de gares durante 10 segundos
-
-        return msgDeGestGares
 
     async def __request_landing(self, torreDeControlo, msg):
         # se receber um pedido de um avião para aterrar
         # verificar se existem gares disponíveis e pistas disponíveis
         print("Recebi pedido para aterrar do aviao", msg.sender)
-        msgDeGestGares = await self.request_num_gares()
-        if msgDeGestGares.get_metadata('performative') == 'replyNumGares':
-            gares_disp = msgDeGestGares.body
-            
-            if gares_disp == 0 or torreDeControlo.pistas_disp == 0:
-                print("Não há gares ou pistas disponíveis")
-                await self.__deny_landing(msg)
-            else:
-                print("Há gares e pistas disponíveis")
-                espera = torreDeControlo.lista_espera
-                torreDeControlo.lista_espera = espera + [(jsonpickle.decode(msg.body), "aterrar")]
+
+        if torreDeControlo.pistas_disp == 0:
+            print("Não há gares ou pistas disponíveis")
+            await self.__deny_landing(torreDeControlo, msg)
+        else:
+            print("Há gares e pistas disponíveis")
+            espera = torreDeControlo.lista_espera
+            torreDeControlo.lista_espera = espera + [(jsonpickle.decode(msg.body), "aterrar")]
 
     async def __deny_landing(self, torreDeControlo, msg):
         # Se o avião não puder aterrar, por falta de gares ou de pistas, colocar ou não em fila de espera, caso o limite de aviões em espera seja atingido
@@ -43,23 +33,18 @@ class ListenTorreControloBehaviour(CyclicBehaviour):
         aviao = jsonpickle.decode(msg.body)
         if num_avioes_espera < torreDeControlo.limite_espera: # Colocar em lista de espera
             torreDeControlo.lista_espera = espera + [(aviao, "aterrar")]
-            #msgParaAviao = Message(to=aviao.get_jid())
-            #msgParaAviao.set_metadata("performative", "wait")
-            #await self.send(msgParaAviao)
+            self.agent.set('TorreDeControlo', torreDeControlo)
         else:
             msgParaAviao = Message(to=aviao.get_jid()) #Enviar o avião para outro aeroporto
             msgParaAviao.set_metadata("performative", "full")
             await self.send(msgParaAviao)
+        
  
     async def __request_take_off(self, torreDeControlo, msg):
         # Verificar se há pistas. Se não houver, verificar se há gares. Se não houver, avião ganha prioridade, senão entra para a fila de espera
         
-        pistas_disp = torreDeControlo.pistas_disp
         espera = torreDeControlo.lista_espera
         torreDeControlo.lista_espera = espera + [(jsonpickle.decode(msg.body), "descolar")]
-        #msgParaAviao = Message(to=jsonpickle.decode(msg.body).get_jid())
-        #msgParaAviao.set_metadata("performative", "wait")
-        #await self.send(msgParaAviao)
 
     async def __update_gares(self, msg):
         pass
@@ -68,8 +53,7 @@ class ListenTorreControloBehaviour(CyclicBehaviour):
         #Retirar da lista de espera
         aviao_jid = msg.sender
         espera = torreDeControlo.lista_espera
-        x = list(filter(lambda x: x[0].get_jid().split("@")[0] != aviao_jid, espera)) #Retirar o avião da lista de espera
-        torreDeControlo.lista_espera = x
+        torreDeControlo.lista_espera = list(filter(lambda x: x[0].get_jid().split("@")[0] != aviao_jid, espera)) #Retirar o avião da lista de espera
 
     async def __done_Landing(self, torreDeControlo, msg):
         print(f"A incrementar pistas disponíveis de {torreDeControlo.pistas_disp} para {torreDeControlo.pistas_disp + 1}")
@@ -84,6 +68,8 @@ class ListenTorreControloBehaviour(CyclicBehaviour):
         aviao : Aviao
         aviao = jsonpickle.decode(msg.body)
         torreDeControlo.lista_descolar.remove(aviao.get_jid().split("@")[0])
+        torreDeControlo.landing_completed(aviao)
+        
 
     async def run(self):
         #print("Listen Torre de Controlo Behaviour iniciado...")
@@ -92,10 +78,14 @@ class ListenTorreControloBehaviour(CyclicBehaviour):
 
         #print("teste after await receive listen torre de controlo")
 
+        
+
         if not msg:
             pass
 
         torreDeControlo = self.agent.get('TorreDeControlo')
+
+        print(f'fff -> {msg.get_metadata("performative")}')
     
         if msg.get_metadata('performative') == 'requestLanding':
             await self.__request_landing(torreDeControlo, msg)
@@ -109,6 +99,8 @@ class ListenTorreControloBehaviour(CyclicBehaviour):
             await self.__done_Landing(torreDeControlo, msg)
         elif msg.get_metadata('performative') == 'planeTookOff':
             await self.__done_TakeOff(torreDeControlo, msg)
+        
+        self.agent.set('TorreDeControlo', torreDeControlo)
 
 
         

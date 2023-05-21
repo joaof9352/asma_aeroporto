@@ -49,7 +49,7 @@ def main():
     time.sleep(4)
     res_torre = torre_controlo.start(auto_register=True)
     res_torre.result()
-    time.sleep(4)
+    time.sleep(10)
 
     while i < MAX_AVIOES:
         random_time = random.randint(1, 10)
@@ -57,7 +57,7 @@ def main():
         aviaoAgent.set('Torre De Controlo', torre_controlo_jid) # Fazer com que o avião conheça a torre de controlo, para que possa comunicar com ela
         res_aviao = aviaoAgent.start(auto_register=True)
         res_aviao.result()
-        time.sleep(random_time)
+        time.sleep(10)
         i += 1
         lista_agentes_avioes.append(aviaoAgent)
 

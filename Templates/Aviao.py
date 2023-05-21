@@ -6,7 +6,7 @@ import random
 
 class Aviao():
     companhias = ["Emirates", "TAP", "Ryanair", "EasyJet", "Malta Airlines", "Turkish Airlines"]
-    tipo = ["Comercial", "Mercadorias"]
+    tipo = ["COMERCIAL", "MERCADORIAS"]
     locais = ["Lisboa", "Madrid", "Barcelona", "Paris", "Londres", "Berlim", "Istambul", "Atenas", "Amsterdão", "Viena", "Dublin", "Budapeste"]
 
     def __init__(self, jid, x, y):

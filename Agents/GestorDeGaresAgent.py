@@ -10,9 +10,12 @@ class GestorDeGaresAgent(agent.Agent):
         print("Agent {}".format(str(self.jid)) + " starting...")
 
         gares = [
-            Gare(5, 5, 'COMERCIAL'),
-            Gare(6, 5, 'TURISTICO'),
-            Gare(7, 5, 'COMERCIAL'),
+            Gare(17, 5, 'COMERCIAL'),
+            Gare(19, 5, 'MERCADORIAS'),
+            Gare(21, 5, 'COMERCIAL'),
+            Gare(8, 5, 'COMERCIAL'),
+            Gare(9, 5, 'MERCADORIAS'),
+            Gare(10, 5, 'COMERCIAL')
         ]
         gestor_de_gares = GestorDeGares(4, 4, gares)
         self.set('GestorDeGares', gestor_de_gares)

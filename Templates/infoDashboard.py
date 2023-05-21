@@ -2,9 +2,10 @@ from Templates.Aviao import Aviao
 
 class InfoDashboard():
 
-    def __init__(self, num_pistas_disp, num_gares_disp, lista_espera, lista_aterrar, lista_descolar):
+    def __init__(self, num_pistas_disp, num_gares_disp_comercial, num_gares_disp_mercadorias, lista_espera, lista_aterrar, lista_descolar):
         self.num_pistas_disp = num_pistas_disp
-        self.num_gares_disp = num_gares_disp
+        self.num_gares_disp_comercial = num_gares_disp_comercial
+        self.num_gares_disp_mercadorias = num_gares_disp_mercadorias
         self.lista_espera = lista_espera
         self.lista_aterrar = lista_aterrar
         self.lista_descolar = lista_descolar
@@ -12,8 +13,11 @@ class InfoDashboard():
     def get_num_pistas_disp(self):
         return self.num_pistas_disp
     
-    def get_num_gares_disp(self):
-        return self.num_gares_disp
+    def get_num_gares_disp_comercial(self):
+        return self.num_gares_disp_comercial
+    
+    def get_num_gares_disp_mercadorias(self):
+        return self.num_gares_disp_mercadorias
     
     def get_lista_espera(self):
         return self.lista_espera
@@ -50,7 +54,8 @@ class InfoDashboard():
         lista_espera_descolar = list(filter(lambda x: x[1] == 'descolar', self.lista_espera))
         print("\n\n\n\n------------------- Info Dashboard -------------------")
         print(f"Numero de pistas disponiveis: {self.num_pistas_disp}")
-        print(f"Numero de gares disponiveis: {self.num_gares_disp}")
+        print(f"Numero de gares comerciais disponiveis: {self.num_gares_disp_comercial}")
+        print(f"Numero de gares de mercadorias disponiveis: {self.num_gares_disp_mercadorias}")
         print(f"Lista de espera de aviões para aterrar: {self.print_lista_espera(lista_espera_aterrar)}")
         print(f"Lista de espera de aviões para descolar: {self.print_lista_espera(lista_espera_descolar)}")
         print(f"Lista de aviões a aterrar: {self.lista_aterrar}")

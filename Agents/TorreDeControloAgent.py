@@ -11,7 +11,7 @@ class TorreDeControloAgent(agent.Agent):
     async def setup(self):
         print("Agent {}".format(str(self.jid)) + " starting...")
 
-        torre_de_controlo = TorreDeControlo(10, 5, [Pista(13, 5)])
+        torre_de_controlo = TorreDeControlo(11, 5, [Pista(13, 5), Pista(14, 5), Pista(15, 5)])
         self.set('TorreDeControlo', torre_de_controlo)
 
         b1 = EnderecaPistaBehaviour(period=3)

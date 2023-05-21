@@ -3,7 +3,8 @@ class TorreDeControlo:
     pistas_disp = 2
     lista_espera = []
     limite_espera = 10
-    gares_disp = 10 # depois criar um behaviour para ir buscar este valor ao gestor de gares
+    gares_disp_mercadorias = 2 # TODO: depois criar um behaviour para ir buscar este valor ao gestor de gares
+    gares_disp_comercial = 4
     lista_aterrar = []
     lista_descolar = []
 
@@ -27,7 +28,7 @@ class TorreDeControlo:
         '''
         pistas = self.pistas_disponiveis()
         if len(pistas) == 0:
-            return -1
+            return None, None
 
         shortestDists = []
         
@@ -41,24 +42,40 @@ class TorreDeControlo:
                 else:
                     dists.append(float('inf'))
 
-            if min(list) == float('inf'):
-                shortestDists.append((-1,-1))
+            if min(dists) == float('inf'):
+                shortestDists.append((None,float('inf')))
             else:
                 min_dist = min(dists)
-                shortestDists.append((gares.get(dists.index(min_dist)), min_dist))
+                shortestDists.append((gares[dists.index(min_dist)], min_dist))
 
-        best_gare = sorted(shortestDists, lambda x: x[1])[0]
-        best_pista = shortestDists.index(best_gare)
+        best_gare = sorted(shortestDists, key=lambda x: x[1])[0]
 
-        if best_gare != -1 and best_pista != -1:
-            #Reserva gare
-            self.pistas[best_pista].land_plane(aviao)
-
+        if best_gare[0] is None:
+            return None, None
         
-        return best_pista, best_gare[0]
+        best_pista = shortestDists.index(best_gare)
+        return pistas[best_pista], best_gare[0]
+    
+    def get_best_pista_descolagem(self, gare):
+        '''
+            Retorna a pista mais perto de determinada gare. Se todas estiverem ocupadas retorna -1.
+        '''
+
+        shortestDists = []
+        for pista in self.pistas:
+            if pista.is_available():
+                shortestDists.append(pista.dist(gare))
+            else:
+                shortestDists.append(float('inf'))
+
+        if min(shortestDists) == float('inf'):
+                return None
+        else:
+            min_dist = min(shortestDists)
+            return self.pistas[shortestDists.index(min_dist)]
+
 
     def landing_completed(self, plane):
         for pista in self.pistas:
-            if pista.landing_plane == plane:
-                pista.landing_plane = None
-
+            if pista.assigned_plane == plane:
+                pista.assigned_plane = None

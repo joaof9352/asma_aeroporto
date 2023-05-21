@@ -5,6 +5,7 @@ import random
 import jsonpickle
 
 from Templates.Aviao import Aviao
+from Templates.TemplateReservaGare import TemplateReservaGare
 
 class ListenGestGaresBehaviour(CyclicBehaviour):
 
@@ -17,6 +18,9 @@ class ListenGestGaresBehaviour(CyclicBehaviour):
         if not msg:
             pass
 
+        msgGestGares = Message(to=self.agent.get('Gestor De Gares')) 
+        #msgGestGares.set_metadata("performative", "")
+
         gestorDeGares = self.agent.get('GestorDeGares')
 
         if msg.get_metadata('performative') == 'requestNumGares':
@@ -26,20 +30,10 @@ class ListenGestGaresBehaviour(CyclicBehaviour):
             #print("Gares disponíveis: ", self.agent.gares_disp)
 
             await self.send(msgParaTorreControlo)
-        
-        elif msg.get_metadata('performative') == 'incrementGares':
-            print("[GEST GARES] Incrementing gares...")
-            gestorDeGares.gares_disp = gestorDeGares.gares_disp + 1
-            print("[GEST GARES] Gares disponíveis: ", gestorDeGares.gares_disp)
-
-        elif msg.get_metadata('performative') == 'decrementGares':
-            print("[GEST GARES] Decrementing gares...")
-            gestorDeGares.gares_disp = gestorDeGares.gares_disp - 1
-            print("[GEST GARES] Gares disponíveis: ", gestorDeGares.gares_disp)
 
         elif msg.get_metadata('performative') == 'requestGaresList':
-            gestor_de_gares = self.agent.get('GestorDeGares')
-            gares = gestor_de_gares.gares
+            #gestor_de_gares = self.agent.get('GestorDeGares')
+            gares = gestorDeGares.listaGares
 
             msgParaTorreControlo = Message(to=self.agent.get('Torre De Controlo'))  # Instantiate the message
             msgParaTorreControlo.set_metadata("performative", "replyGaresList")
@@ -47,11 +41,34 @@ class ListenGestGaresBehaviour(CyclicBehaviour):
 
             await self.send(msgParaTorreControlo)
         elif msg.get_metadata('performative') == 'reserveGare':
-            gare = jsonpickle.decode(msg.body)
-            gestor_de_gares = self.agent.get('GestorDeGares')
-            gestor_de_gares.reserve(gare)
+            gestorDeGares.gares_disp -= 1
 
-            print(f"[GG] A reservare Gare ({gare.x}, {gare.y})")
+            templateReservaGare : TemplateReservaGare
+            templateReservaGare = jsonpickle.decode(msg.body)
+            
+            aviao = templateReservaGare.getAviao()
+            gare = templateReservaGare.getGare()
+            
+            gestorDeGares.reserve(gare, aviao)
+
+            print(f"[GG] A reservare Gare ({gare.x}, {gare.y}). Gares disponíveis: {gestorDeGares.gares_disp}")
+
+        elif msg.get_metadata('performative') == 'freeGare':
+            gestorDeGares.gares_disp += 1
+            aviao = jsonpickle.decode(msg.body)
+            gestorDeGares.free_gare(aviao)
+            print(f"[GG] A libertar Gare ({aviao.x}, {aviao.y}). Gares disponíveis: {gestorDeGares.gares_disp}")
+
+        elif msg.get_metadata('performative') == 'getGareAviao':
+            aviao = jsonpickle.decode(msg.body)
+            gare = gestorDeGares.get_gare_aviao(aviao)
+            msgGestGares.set_metadata("performative", "replyGareAviao")
+            msgGestGares.body = jsonpickle.encode(gare)
+            await self.send(msgGestGares)
+            
+
+
+        self.agent.set("GestorDeGares", gestorDeGares)
 
 
             
