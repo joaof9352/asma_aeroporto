@@ -21,6 +21,7 @@ class GetNumGaresBehaviour(OneShotBehaviour):
             torreDeControlo = self.agent.get('TorreDeControlo')
             torreDeControlo.gares_disp_comercial = numGaresComercial
             torreDeControlo.gares_disp_mercadorias = numGaresMercadorias
+            torreDeControlo.limite_espera = numGaresComercial + numGaresMercadorias
             self.agent.set('TorreDeControlo', torreDeControlo)
 
 

@@ -2,9 +2,9 @@
 class TorreDeControlo:
     pistas_disp = 2
     lista_espera = []
-    limite_espera = 10
-    gares_disp_mercadorias = 2 # TODO: depois criar um behaviour para ir buscar este valor ao gestor de gares
-    gares_disp_comercial = 4
+    limite_espera = 10         # Isto agora está a ser alterado pelo behaviour GetNumGaresBehaviour
+    gares_disp_mercadorias = 2 # Isto agora está a ser alterado pelo behaviour GetNumGaresBehaviour
+    gares_disp_comercial = 4   # Isto agora está a ser alterado pelo behaviour GetNumGaresBehaviour
     lista_aterrar = []
     lista_descolar = []
 

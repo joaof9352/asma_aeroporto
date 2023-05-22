@@ -17,14 +17,7 @@ class ListenGestGaresBehaviour(CyclicBehaviour):
 
         gestorDeGares = self.agent.get('GestorDeGares')
 
-        if msg.get_metadata('performative') == 'requestNumGares':
-            msgParaTorreControlo = Message(to=self.agent.get('Torre De Controlo'))  # Instantiate the message
-            msgParaTorreControlo.set_metadata("performative", "replyNumGares")
-            msgParaTorreControlo.body = str(gestorDeGares.gares_disp)
-
-            await self.send(msgParaTorreControlo)
-
-        elif msg.get_metadata('performative') == 'requestGaresList':
+        if msg.get_metadata('performative') == 'requestGaresList':
             gares = gestorDeGares.listaGares
 
             msgParaTorreControlo = Message(to=self.agent.get('Torre De Controlo'))  # Instantiate the message
