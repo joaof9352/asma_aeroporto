@@ -13,3 +13,6 @@ class Pista:
     
     def is_available(self):
         return self.assigned_plane is None
+
+    def free_pista(self):
+        self.assigned_plane = None

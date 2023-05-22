@@ -10,7 +10,7 @@ import time
 XMPP_SERVER = 'legion'
 PASSWORD = 'openfireASMA'
 
-MAX_AVIOES = 5  # limit number of taxis
+MAX_AVIOES = 20  # limit number of taxis
 
 
 
@@ -57,7 +57,7 @@ def main():
         aviaoAgent.set('Torre De Controlo', torre_controlo_jid) # Fazer com que o avião conheça a torre de controlo, para que possa comunicar com ela
         res_aviao = aviaoAgent.start(auto_register=True)
         res_aviao.result()
-        time.sleep(10)
+        time.sleep(2)
         i += 1
         lista_agentes_avioes.append(aviaoAgent)
 

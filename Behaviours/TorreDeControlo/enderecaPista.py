@@ -17,33 +17,39 @@ class EnderecaPistaBehaviour(PeriodicBehaviour): # 3 em 3 segundos
     async def run(self):
         #print("Endereça Pista Behaviour iniciado...")
         torreDeControlo : TorreDeControlo = self.agent.get('TorreDeControlo')
-        print("A verificar se existem aviões em lista de espera...")
-        print(f"Estado: {torreDeControlo.pistas_disp}")
+        #print("A verificar se existem aviões em lista de espera...")
+        #print(f"Estado: {torreDeControlo.pistas_disp}")
         espera = torreDeControlo.lista_espera
         if len(espera) > 0:
             if torreDeControlo.pistas_disp > 0:
-                print("Existem aviões em lista de espera e pistas disponíveis")
+                #print("Existem aviões em lista de espera e pistas disponíveis")
                 aviao : Aviao
                 aviao,tipo = espera[0]
+                #print(f'{aviao.get_jid()} + {aviao.get_tipo()}')
 
                 if aviao.get_tipo() == 'COMERCIAL':
                     numGares = torreDeControlo.gares_disp_comercial
                 else:
                     numGares = torreDeControlo.gares_disp_mercadorias
-                
+
+                #print(f'Num Gares {numGares}')
+
                 if numGares > 0:
                     # Enviar confirmação para o avião que fez primeiro o pedido, seja este descolar ou aterrar
                     aviao,tipo = espera.pop(0)
-
+                    print(f"A enviar confirmação para o avião {aviao.get_jid()}...")
+                    await self.__confirm_operation(torreDeControlo, aviao, tipo, numGares)
                 else:
-                    avioes_descolar = list(filter(lambda x: x[1] == "descolar", espera)) # caso não haja gares disponíveis, dar prioridade aos aviões que querem descolar
+                    #print("Debugs 1")
+                    avioes_descolar = list(filter(lambda x: x[1] == "descolar" and x[0].get_tipo() == aviao.get_tipo(), espera)) # caso não haja gares disponíveis, dar prioridade aos aviões que querem descolar
                     if len(avioes_descolar) > 0:
                         aviao, tipo = espera.pop(espera.index(avioes_descolar[0]))
-                print(f"A enviar confirmação para o avião {aviao.get_jid()}...")
-                await self.__confirm_operation(torreDeControlo, aviao, tipo)
+                        print(f"A enviar confirmação para o avião {aviao.get_jid()}...")
+                        await self.__confirm_operation(torreDeControlo, aviao, tipo, numGares)
+
         self.agent.set("TorreDeControlo", torreDeControlo)
 
-    async def __confirm_operation(self, torreDeControlo, aviao, type):
+    async def __confirm_operation(self, torreDeControlo, aviao, type, numGares):
         # se gouver gares disponíveis e pistas disponíveis, decrementar o número de gares disponíveis e pistas disponíveis
         # falta introduzir no corpo da mensagem o número da gare e pista que o avião deve utilizar
         msgParaGestGares = Message(to=self.agent.get('Gestor De Gares'))  # Instantiate the message
@@ -61,13 +67,14 @@ class EnderecaPistaBehaviour(PeriodicBehaviour): # 3 em 3 segundos
 
             if msgGestGares.get_metadata('performative') == 'replyGaresList':
                 gares = list(jsonpickle.decode(msgGestGares.body))
-                print("GARES:", gares)
+                #print("GARES:", gares)
                 
                 best_pista : Pista
                 best_gare : Gare
+                print(f'Numero de gares disponiveis do tipo {aviao.get_tipo()}: {numGares}')
                 best_pista, best_gare = torreDeControlo.getBestPista(gares, aviao)
 
-                print(f'AAAAAAAAAAAAAAAAAAAAAAAAAA -> {best_pista, best_gare}')
+                #print(f'AAAAAAAAAAAAAAAAAAAAAAAAAA -> {best_pista, best_gare}')
 
                 if best_gare is not None and best_pista is not None:
                     #Reserva gare
@@ -94,23 +101,31 @@ class EnderecaPistaBehaviour(PeriodicBehaviour): # 3 em 3 segundos
             gareAviaoMsg.set_metadata("performative", "getGareAviao")
             gareAviaoMsg.body = jsonpickle.encode(aviao)
             await self.send(gareAviaoMsg)
-            if gareAviaoMsg.get_metadata('performative') == 'replyGareAviao':
+            #print("DEBUG ENVIO GET GARE AVIAO AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+            
+            gareAviaoMsg = await self.receive(timeout=20)
+
+            while gareAviaoMsg.get_metadata('performative') != 'replyGareAviao':
                 gareAviaoMsg = await self.receive(timeout=20)
+
+            if gareAviaoMsg.get_metadata('performative') == 'replyGareAviao':
+                #print("DEBUG CENAS")
                 gare : Gare = jsonpickle.decode(gareAviaoMsg.body)
                 # obtenção da pista mais próxima desta gare que esteja disponível
+                #print("HELLO HELLO GARE: ", gare)
                 best_pista = torreDeControlo.get_best_pista_descolagem(gare)
                 # reservar a pista para o avião. Quando o avião confirmar a descolagem é preciso libertar a pista.
                 best_pista.assign_plane(aviao)
 
                 msgParaGestGares.set_metadata("performative", "freeGare")
-                msg.body = jsonpickle.encode(aviao) # ao enviar o avião no corpo da mensagem, o gestor de gares poderá procurar qual a gare em que o avião se encontra e libertá-la
+                msgParaGestGares.body = jsonpickle.encode(aviao) # ao enviar o avião no corpo da mensagem, o gestor de gares poderá procurar qual a gare em que o avião se encontra e libertá-la
                 if aviao.get_tipo() == 'COMERCIAL':
-                        torreDeControlo.gares_disp_comercial += 1
+                    torreDeControlo.gares_disp_comercial += 1
                 else:
                     torreDeControlo.gares_disp_mercadorias += 1
                 torreDeControlo.lista_descolar.append(aviao.get_jid().split('@')[0])
         await self.send(msgParaGestGares)
-        print(f"A decrementar o número de pistas disponíveis de {torreDeControlo.pistas_disp} para {torreDeControlo.pistas_disp - 1}")
+        #print(f"A decrementar o número de pistas disponíveis de {torreDeControlo.pistas_disp} para {torreDeControlo.pistas_disp - 1}")
         torreDeControlo.pistas_disp = torreDeControlo.pistas_disp - 1
         msgParaAviao = Message(to=aviao.get_jid())  # Instantiate the message
         msgParaAviao.set_metadata("performative", f'confirm_{type}') #confirm_aterrar confirm_descolar

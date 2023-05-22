@@ -17,8 +17,6 @@ class ListenGestGaresBehaviour(CyclicBehaviour):
 
         if not msg:
             pass
-
-        msgGestGares = Message(to=self.agent.get('Gestor De Gares')) 
         #msgGestGares.set_metadata("performative", "")
 
         gestorDeGares = self.agent.get('GestorDeGares')
@@ -41,31 +39,42 @@ class ListenGestGaresBehaviour(CyclicBehaviour):
 
             await self.send(msgParaTorreControlo)
         elif msg.get_metadata('performative') == 'reserveGare':
-            gestorDeGares.gares_disp -= 1
 
             templateReservaGare : TemplateReservaGare
             templateReservaGare = jsonpickle.decode(msg.body)
             
             aviao = templateReservaGare.getAviao()
             gare = templateReservaGare.getGare()
-            
+
             gestorDeGares.reserve(gare, aviao)
 
-            print(f"[GG] A reservare Gare ({gare.x}, {gare.y}). Gares disponíveis: {gestorDeGares.gares_disp}")
+            if aviao.get_tipo() == "COMERCIAL":
+                gestorDeGares.gares_disp_comercial -= 1
+                print(f"[GG] A reservare Gare ({gare.x}, {gare.y}) ({gare.type}). Gares disponíveis: {gestorDeGares.gares_disp_comercial}")
+            else:
+                gestorDeGares.gares_disp_mercadorias -= 1
+                print(f"[GG] A reservare Gare ({gare.x}, {gare.y}) ({gare.type}). Gares disponíveis: {gestorDeGares.gares_disp_mercadorias}")
+            
+            
 
         elif msg.get_metadata('performative') == 'freeGare':
-            gestorDeGares.gares_disp += 1
             aviao = jsonpickle.decode(msg.body)
             gestorDeGares.free_gare(aviao)
-            print(f"[GG] A libertar Gare ({aviao.x}, {aviao.y}). Gares disponíveis: {gestorDeGares.gares_disp}")
+            if aviao.get_tipo() == "COMERCIAL":
+                gestorDeGares.gares_disp_comercial += 1
+                print(f"[GG] A libertar Gare ({aviao.x}, {aviao.y}). Gares disponíveis: {gestorDeGares.gares_disp_comercial}")
+            else:
+                gestorDeGares.gares_disp_mercadorias += 1
+                print(f"[GG] A libertar Gare ({aviao.x}, {aviao.y}). Gares disponíveis: {gestorDeGares.gares_disp_mercadorias}")
 
         elif msg.get_metadata('performative') == 'getGareAviao':
             aviao = jsonpickle.decode(msg.body)
             gare = gestorDeGares.get_gare_aviao(aviao)
+            msgGestGares = Message(to=self.agent.get('Torre De Controlo')) 
             msgGestGares.set_metadata("performative", "replyGareAviao")
             msgGestGares.body = jsonpickle.encode(gare)
             await self.send(msgGestGares)
-            
+
 
 
         self.agent.set("GestorDeGares", gestorDeGares)

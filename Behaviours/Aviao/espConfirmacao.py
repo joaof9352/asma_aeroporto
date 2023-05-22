@@ -28,6 +28,7 @@ class EspConfirmacaoBehaviour(CyclicBehaviour):
         msg = await self.receive(timeout=aviao.get_limite_timeout())  # wait for a message for 10 seconds
 
         if not msg:
+            print('DEBUUUUUUUUUUUUUUG')
             msg = Message(to=self.agent.get('Torre De Controlo'))  # Instanciar a mensagem para a torre de controlo
             msg.set_metadata("performative", "cancelLanding")
             await self.send(msg)

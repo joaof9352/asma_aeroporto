@@ -48,18 +48,22 @@ class ListenTorreControloBehaviour(CyclicBehaviour):
 
     async def __update_gares(self, msg):
         pass
+
  
     async def __cancelLanding(self, torreDeControlo, msg):
         #Retirar da lista de espera
+        print("A cancelar pedido de aterragem do aviao", msg.sender)
         aviao_jid = msg.sender
         espera = torreDeControlo.lista_espera
-        torreDeControlo.lista_espera = list(filter(lambda x: x[0].get_jid().split("@")[0] != aviao_jid, espera)) #Retirar o avião da lista de espera
+        torreDeControlo.lista_espera = [x for x in espera if str(x[0].get_jid()) != str(aviao_jid)]
 
     async def __done_Landing(self, torreDeControlo, msg):
         print(f"A incrementar pistas disponíveis de {torreDeControlo.pistas_disp} para {torreDeControlo.pistas_disp + 1}")
         torreDeControlo.pistas_disp = torreDeControlo.pistas_disp + 1
         aviao : Aviao
         aviao = jsonpickle.decode(msg.body)
+        print('Debug1')
+        torreDeControlo.landing_completed(aviao)
         torreDeControlo.lista_aterrar.remove(aviao.get_jid().split("@")[0])
 
     async def __done_TakeOff(self, torreDeControlo, msg):
@@ -85,7 +89,7 @@ class ListenTorreControloBehaviour(CyclicBehaviour):
 
         torreDeControlo = self.agent.get('TorreDeControlo')
 
-        print(f'fff -> {msg.get_metadata("performative")}')
+        #print(f'fff -> {msg.get_metadata("performative")}')
     
         if msg.get_metadata('performative') == 'requestLanding':
             await self.__request_landing(torreDeControlo, msg)

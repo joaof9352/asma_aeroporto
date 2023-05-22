@@ -77,5 +77,7 @@ class TorreDeControlo:
 
     def landing_completed(self, plane):
         for pista in self.pistas:
-            if pista.assigned_plane == plane:
-                pista.assigned_plane = None
+            #print(f'Assigned Plane: {pista.assigned_plane.get_jid()}')
+            if not pista.is_available():
+                if pista.assigned_plane.get_jid() == plane.get_jid():
+                    pista.free_pista()
