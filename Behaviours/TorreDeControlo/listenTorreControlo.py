@@ -15,13 +15,13 @@ class ListenTorreControloBehaviour(CyclicBehaviour):
     async def __request_landing(self, torreDeControlo, msg):
         # se receber um pedido de um avião para aterrar
         # verificar se existem gares disponíveis e pistas disponíveis
-        print("Recebi pedido para aterrar do aviao", msg.sender)
+        print("[TC] Recebi pedido para aterrar do aviao", msg.sender)
 
         if torreDeControlo.pistas_disp == 0:
-            print("Não há gares ou pistas disponíveis")
+            print("[TC] Não há gares ou pistas disponíveis")
             await self.__deny_landing(torreDeControlo, msg)
         else:
-            print("Há gares e pistas disponíveis")
+            print("[TC] Há gares e pistas disponíveis")
             espera = torreDeControlo.lista_espera
             torreDeControlo.lista_espera = espera + [(jsonpickle.decode(msg.body), "aterrar")]
 
@@ -45,29 +45,24 @@ class ListenTorreControloBehaviour(CyclicBehaviour):
         
         espera = torreDeControlo.lista_espera
         torreDeControlo.lista_espera = espera + [(jsonpickle.decode(msg.body), "descolar")]
-
-    async def __update_gares(self, msg):
-        pass
-
  
     async def __cancelLanding(self, torreDeControlo, msg):
         #Retirar da lista de espera
-        print("A cancelar pedido de aterragem do aviao", msg.sender)
+        print("[TC] A cancelar pedido de aterragem do aviao", msg.sender)
         aviao_jid = msg.sender
         espera = torreDeControlo.lista_espera
         torreDeControlo.lista_espera = [x for x in espera if str(x[0].get_jid()) != str(aviao_jid)]
 
     async def __done_Landing(self, torreDeControlo, msg):
-        print(f"A incrementar pistas disponíveis de {torreDeControlo.pistas_disp} para {torreDeControlo.pistas_disp + 1}")
+        print(f"[TC] A incrementar pistas disponíveis de {torreDeControlo.pistas_disp} para {torreDeControlo.pistas_disp + 1}")
         torreDeControlo.pistas_disp = torreDeControlo.pistas_disp + 1
         aviao : Aviao
         aviao = jsonpickle.decode(msg.body)
-        print('Debug1')
         torreDeControlo.landing_completed(aviao)
         torreDeControlo.lista_aterrar.remove(aviao.get_jid().split("@")[0])
 
     async def __done_TakeOff(self, torreDeControlo, msg):
-        print(f"A incrementar pistas disponíveis de {torreDeControlo.pistas_disp} para {torreDeControlo.pistas_disp + 1}")
+        print(f"[TC] A incrementar pistas disponíveis de {torreDeControlo.pistas_disp} para {torreDeControlo.pistas_disp + 1}")
         torreDeControlo.pistas_disp = torreDeControlo.pistas_disp + 1
         aviao : Aviao
         aviao = jsonpickle.decode(msg.body)
@@ -76,21 +71,14 @@ class ListenTorreControloBehaviour(CyclicBehaviour):
         
 
     async def run(self):
-        #print("Listen Torre de Controlo Behaviour iniciado...")
 
-        msg = await self.receive(timeout=60)  # wait for a message
-
-        #print("teste after await receive listen torre de controlo")
-
-        
+        msg = await self.receive(timeout=60)  # wait for a message        
 
         if not msg:
             pass
 
         torreDeControlo = self.agent.get('TorreDeControlo')
 
-        #print(f'fff -> {msg.get_metadata("performative")}')
-    
         if msg.get_metadata('performative') == 'requestLanding':
             await self.__request_landing(torreDeControlo, msg)
         elif msg.get_metadata('performative') == 'requestTakeOff':
@@ -105,8 +93,3 @@ class ListenTorreControloBehaviour(CyclicBehaviour):
             await self.__done_TakeOff(torreDeControlo, msg)
         
         self.agent.set('TorreDeControlo', torreDeControlo)
-
-
-        
-
-        

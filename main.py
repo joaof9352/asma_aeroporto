@@ -57,7 +57,7 @@ def main():
         aviaoAgent.set('Torre De Controlo', torre_controlo_jid) # Fazer com que o avião conheça a torre de controlo, para que possa comunicar com ela
         res_aviao = aviaoAgent.start(auto_register=True)
         res_aviao.result()
-        time.sleep(2)
+        time.sleep(5)
         i += 1
         lista_agentes_avioes.append(aviaoAgent)
 

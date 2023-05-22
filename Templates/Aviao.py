@@ -15,9 +15,9 @@ class Aviao():
         self.tipo = random.choice(self.tipo)
         self.origem = random.choice(self.locais)
         self.destino = "Porto"
-        self.limite_timeout = random.randint(30,60)
-        self.tempo_aterragem = 20
-        self.tempo_descolagem = 20
+        self.limite_timeout = 40 #random.randint(30,60)
+        self.tempo_aterragem = 10
+        self.tempo_descolagem = 10
         self.x = x
         self.y = y
 

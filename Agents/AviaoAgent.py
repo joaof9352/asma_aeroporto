@@ -14,37 +14,10 @@ class AviaoAgent(agent.Agent):
 
         aviao = Aviao(f"{self.jid}", 300, 5)
         self.set('Aviao', aviao)
+        self.set('quer_aterrar', False)
 
         b1 = EspConfirmacaoBehaviour()
         b2 = VontadeAterrarBehaviour()
-        b3 = VontadeDescolarBehaviour()
         self.add_behaviour(b1)
         self.add_behaviour(b2)
-        #self.add_behaviour(b3)
-
-
-
-"""
-from spade.agent import Agent
-from spade.behaviour import OneShotBehaviour, CyclicBehaviour
-
-class MyBehaviour(OneShotBehaviour):
-    async def run(self):
-        print("Executing MyBehaviour")
-        # Call AnotherBehaviour after 5 seconds
-        self.agent.call_later(5, self.agent.start_behaviour, AnotherBehaviour())
-
-class AnotherBehaviour(CyclicBehaviour):
-    async def run(self):
-        print("Executing AnotherBehaviour")
-        # Perform the desired actions of AnotherBehaviour
-
-class MyAgent(Agent):
-    async def setup(self):
-        self.add_behaviour(MyBehaviour())
-
-my_agent = MyAgent("agent@example.com", "password")
-my_agent.start()
-"""
-
     

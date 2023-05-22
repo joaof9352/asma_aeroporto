@@ -10,12 +10,12 @@ from Templates.Aviao import Aviao
 class VontadeDescolarBehaviour(OneShotBehaviour):
     
     async def run(self):
-        print(f"Avião {self.agent.jid} quer descolar...")
 
         msg = Message(to=self.agent.get('Torre De Controlo'))  # Instantiate the message
         msg.set_metadata("performative", "requestTakeOff")
         aviao : Aviao
         aviao = self.agent.get('Aviao')
+        print(f"[{self.agent.jid} ({aviao.get_tipo()})] Avião {self.agent.jid} quer descolar...")
         msg.body = jsonpickle.encode(aviao)
         await self.send(msg)
         
