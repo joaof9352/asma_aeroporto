@@ -83,8 +83,6 @@ class ListenTorreControloBehaviour(CyclicBehaviour):
             await self.__request_landing(torreDeControlo, msg)
         elif msg.get_metadata('performative') == 'requestTakeOff':
             await self.__request_take_off(torreDeControlo, msg)
-        elif msg.get_metadata('performative') == 'updateGares':
-            await self.__updateGares(torreDeControlo, msg)
         elif msg.get_metadata('performative') == 'cancelLanding':
             await self.__cancelLanding(torreDeControlo, msg)
         elif msg.get_metadata('performative') == 'planeLanded':
